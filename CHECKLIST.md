@@ -67,7 +67,7 @@ Phase 4 — Observability:
   - Schema load events at WARNING (skipped) and DEBUG (loaded) level.
   - All logged as json.dumps dicts so log aggregators can parse them.
 
-Phase 5 — Unit tests (30 tests, no API key, no Kaggle data required).
+Phase 5 — Unit tests (58 tests, no API key, no Kaggle data required).
 ```
 
 - [x] **System works correctly end-to-end**
@@ -243,7 +243,7 @@ Not implemented — core requirements took priority and the implementation is co
    queries. Error/unanswerable paths never call the LLM at all. Schema introspection happens
    once at startup.
 
-5. Testability: 30 unit tests with zero external dependencies run in <1 second. All routing
+5. Testability: 58 unit tests with zero external dependencies run in <1 second. All routing
    logic lives in the pipeline (not the LLM client), so it's testable with mocked LLMs.
 
 6. Fail-safe: No stage raises an unhandled exception. All errors surface as structured output
@@ -261,7 +261,7 @@ Not implemented — core requirements took priority and the implementation is co
 - Scalar fast-path: avoids answer LLM call for single-value aggregate results
 - Benchmark: fixed result["status"] → result.status
 - gpt-5-nano compatibility: max_tokens=4096, temperature=1.0
-- 30 unit tests: no API key or data required
+- 58 unit tests: no API key or data required
 ```
 
 **Known limitations or future work:**

@@ -68,7 +68,7 @@
 
 ### `tests/test_unit.py` (new file)
 
-30 unit tests across 4 test classes. Zero external dependencies — uses `tempfile` SQLite and `unittest.mock.MagicMock` for the LLM client. Runnable with `python3 -m unittest tests.test_unit -v`.
+58 unit tests across 6 test classes. Zero external dependencies — uses `tempfile` SQLite and `unittest.mock.MagicMock` for the LLM client. Runnable with `python3 -m unittest tests.test_unit -v`.
 
 | Class | Count | What's covered |
 |---|---|---|
@@ -108,7 +108,7 @@
 | Destructive SQL blocked | No | Yes (DELETE/DROP/PRAGMA/etc.) |
 | Unknown column rejected | No | Yes (column reference check) |
 | Benchmark crash | Yes (TypeError on line 53) | Fixed |
-| Unit test suite | 0 tests | 30 tests, 0 API calls required |
+| Unit test suite | 0 tests | 58 tests, 0 API calls required |
 | LLM calls for scalar results | 2 (SQL + answer) | 1 (SQL only; fast-path answer) |
 | LLM calls for invalid/unanswerable | 1 (answer) | 0 (short-circuited) |
 
