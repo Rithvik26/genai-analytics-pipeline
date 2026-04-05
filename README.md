@@ -10,15 +10,15 @@ Key metrics include **end-to-end response time** from prompt ingest to final ans
 
 ## Current Status
 
-**This codebase is a starting point for the assignment and is not yet fully functional.** Several core components require implementation to make the pipeline production-ready:
+**Implementation complete.** All assignment tasks have been addressed:
 
-- Token counting infrastructure (skeleton provided in `src/llm_client.py`, actual counting logic needs implementation)
-- SQL validation and quality checks
-- Result validation and answer quality verification
-- Comprehensive observability (logging, metrics, tracing)
-- Edge case handling and error recovery
+- Token counting implemented — prompt/completion/total tokens tracked per call via OpenRouter usage fields
+- SQL validation with schema-aware column checks, table allowlist, and EXPLAIN QUERY PLAN structural validation
+- Scalar fast-path (1 row × 1 col skips second LLM call), destructive query rejection, unanswerable detection
+- Structured JSON logging with `request_id` correlation across all pipeline stages
+- 58 unit tests with zero external dependencies (no API key, no dataset required)
 
-The baseline pipeline will run, but key functionality—particularly around validation, observability, and efficiency optimizations—remains incomplete. See `Assignment Tasks` below and `CHECKLIST.md` for specific implementation requirements.
+See `CHECKLIST.md` for full design decisions and `SOLUTION_NOTES.md` for before/after benchmark numbers.
 
 ## What You Get
 - Baseline Python pipeline with stages:
