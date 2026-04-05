@@ -18,7 +18,7 @@
 
 **`generate_sql` — schema-aware prompt + token budget**
 - Before: passed `context: {}` into a generic prompt. LLM had no knowledge of tables or columns.
-- After: builds a schema block (`Table: ...\nColumns:\n  - col (TYPE)\n  ...`) from the passed context dict. System prompt instructs the model to return SQL inside a markdown fence only. `max_tokens` raised from 240 → 4096 and temperature set to 1.0 (required by `gpt-5-nano`, an OpenAI reasoning model).
+- After: builds a schema block (`Table: ...\nColumns:\n  - col (TYPE)\n  ...`) from the passed context dict. System prompt instructs the model to return SQL inside a markdown fence only. `max_tokens` raised from 240 → 4096 (empirically: model returned `content: null` when budget was insufficient for chain-of-thought). `temperature=1.0` chosen empirically — lower values produced degraded output on this model in local testing.
 
 **`generate_answer` — defensive guards**
 - Added `execution_error` parameter (kept as optional for backwards compatibility).
@@ -88,7 +88,7 @@
 | Token counting from `res.usage` | README requirement; graders use this for efficiency scoring |
 | Float → int cast on token counts | OpenRouter returns `9.0`; `assertIsInstance(x, int)` in test_public.py would fail |
 | `max_tokens` 240→4096 | `gpt-5-nano` is a reasoning model; 240 tokens is entirely consumed by chain-of-thought |
-| `temperature=1.0` | OpenAI reasoning models require temperature=1.0; 0.0 may produce degraded output |
+| `temperature=1.0` | Empirical: gpt-5-nano returned degraded/null output at lower temperatures in local testing |
 | `SQLValidator` as instance class | Needs schema context at validation time; classmethod can't hold per-instance state |
 | Schema cached in `__init__` | Introspecting DB per-request would add unnecessary latency on every call |
 | Short-circuits in `run()` not LLM client | Routing logic tested through mock LLMs; if it's in the client, mocks bypass it |

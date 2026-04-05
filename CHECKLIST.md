@@ -22,8 +22,9 @@
 4. Token counting unimplemented: _chat never incremented _stats, so all token fields were 0.
    The OpenRouter usage object returns floats, requiring int() conversion.
 
-5. gpt-5-nano is a reasoning model: It requires max_tokens >= 2000 and temperature=1.0.
-   With max_tokens=240, it spent all its budget on chain-of-thought and returned content: null.
+5. gpt-5-nano is a reasoning model: empirically observed to return content: null when
+   max_tokens=240 (budget consumed by chain-of-thought). Increasing to 4096 resolved this.
+   temperature=1.0 was used after observing degraded behaviour at lower values on this model.
 
 6. Benchmark crash: benchmark.py accessed result["status"] on a dataclass (PipelineOutput),
    which raises TypeError. Should be result.status.
@@ -42,7 +43,7 @@ Phase 1 — Foundation fixes:
   - Token counting: read res.usage fields (prompt_tokens, completion_tokens, total_tokens),
     cast to int. Fallback: estimate from word counts × 4/3 when usage is absent.
   - max_tokens 512→4096 for SQL, 220→2048 for answers (reasoning model needs headroom).
-  - Temperature: 1.0 (required by OpenAI reasoning models).
+  - Temperature: 1.0 (empirically chosen — gpt-5-nano produced degraded output at lower values in local testing).
   - Benchmark: result["status"] → result.status.
 
 Phase 2 — SQL Validator (schema-aware, safety-first):
@@ -180,19 +181,20 @@ Phase 5 — Unit tests (30 tests, no API key, no Kaggle data required).
     requested), reducing output token waste. Answer prompt passes at most 30 rows as compact
     JSON. `pop_stats()` aggregates per-call stats and resets cleanly between pipeline runs.
     `max_tokens=4096` for SQL and `max_tokens=2048` for answers — sized to give the reasoning
-    model enough headroom without wasteful padding; `temperature=1.0` is required by the
-    OpenAI reasoning model family.
+    model enough headroom without wasteful padding; `temperature=1.0` was chosen empirically —
+    gpt-5-nano returned `content: null` at lower temperatures in local testing.
 
 ---
 
 ## Testing
 
 - [x] **Unit tests**
-  - Description: `tests/test_unit.py` — 30 tests across 4 classes, zero external dependencies
+  - Description: `tests/test_unit.py` — 58 tests across 6 classes, zero external dependencies
     (no API key, no Kaggle data, no network calls). Uses `tempfile.mkdtemp()` for a real
-    SQLite DB with 3 rows of sample data and `unittest.mock.MagicMock` for the LLM client.
-    Test classes: `TestExtractSQL` (7 tests), `TestSQLValidator` (12 tests),
-    `TestPipelineWithMockLLM` (10 tests), `TestBenchmarkStatusAccess` (1 test).
+    SQLite DB and `unittest.mock.MagicMock` for the LLM client.
+    Test classes: `TestTrimSQLTrailingProse` (4), `TestExtractSQL` (11),
+    `TestTokenCounting` (4), `TestSQLValidator` (17), `TestSQLValidatorWithDB` (3),
+    `TestPipelineWithMockLLM` (13), `TestBenchmarkStatusAccess` (1).
 
 - [x] **Integration tests**
   - Description: `tests/test_public.py` (unchanged) — 5 tests covering: answerable prompt
