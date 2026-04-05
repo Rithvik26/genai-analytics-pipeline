@@ -1,0 +1,3 @@
+openrouter
+pandas
+python-dotenv
